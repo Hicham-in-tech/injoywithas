@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GI S6 — Connect & Collaborate</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans for a modern tech feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --bg-color: #030712;
+        --card-bg: #111827;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent: #6366f1;
+        --accent-glow: rgba(99, 102, 241, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.08);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-color);
+        /* Subtle mesh gradient background */
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+        background-attachment: fixed;
+        color: var(--text-primary);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ─── SCROLLBAR ───────────────────────────────────────────── */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: var(--bg-color); }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+      /* ─── HEADER ─────────────────────────────────────────────── */
+      .header {
+        position: relative;
+        padding: 80px 20px 60px;
+        text-align: center;
+        overflow: hidden;
+      }
+      
+      /* Glowing orb effect behind header */
+      .header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+        filter: blur(60px);
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        color: #818cf8;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 6px 16px;
+        border-radius: 100px;
+        margin-bottom: 24px;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+      }
+
+      .header h1 {
+        font-size: clamp(32px, 5vw, 56px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      }
+
+      .header p {
+        color: var(--text-secondary);
+        font-size: 18px;
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      .header-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+      }
+
+      /* ─── SEARCH & BUTTONS ───────────────────────────────────── */
+      .search-wrapper {
+        position: relative;
+        width: min(400px, 90vw);
+      }
+      .search-box {
+        width: 100%;
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid var(--glass-border);
+        color: #fff;
+        border-radius: 14px;
+        padding: 14px 20px 14px 48px;
+        font-size: 15px;
+        outline: none;
+        backdrop-filter: blur(12px);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: inherit;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .search-box::placeholder { color: #64748b; }
+      .search-box:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        background: rgba(30, 41, 59, 0.9);
+      }
+
+      .share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        color: #0f172a;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      }
+      .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2); }
+      .share-btn:active { transform: translateY(0); }
+
+      /* ─── GRID ────────────────────────────────────────────────── */
+      .grid-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 24px 80px;
+      }
+      .count-divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+        color: #475569;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      .count-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, #1e293b, transparent);
+      }
+      
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+      }
+
+      /* ─── CARD DESIGN ─────────────────────────────────────────── */
+      .card {
+        position: relative;
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+      }
+      
+      /* Hover glow effect */
+      .card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%);
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+      }
+      .card:hover::before { opacity: 1; }
+
+      .card:hover {
+        transform: translateY(-4px) scale(1.01);
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(99,102,241,0.3);
+        box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4);
+      }
+
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+        box-shadow: 0 8px 16px -4px rgba(0,0,0,0.5);
+        border: 2px solid rgba(255,255,255,0.1);
+      }
+
+      .card-content {
+        flex: 1;
+        min-width: 0; /* text truncation fix */
+      }
+
+      .member-name {
+        font-size: 17px;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .member-role {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 16px;
+        display: block;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 8px;
+      }
+
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid var(--glass-border);
+        background: rgba(255,255,255,0.03);
+        color: #94a3b8;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .icon-btn:hover {
+        background: #fff;
+        color: #0f172a;
+        transform: translateY(-2px);
+      }
+      
+      .btn-linkedin:hover { background: #0a66c2; color: white; border-color: #0a66c2; }
+      .btn-github:hover { background: #24292e; color: white; border-color: #24292e; }
+
+      .icon-btn.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: transparent;
+      }
+
+      /* ─── TOAST ───────────────────────────────────────────────── */
+      .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid #334155;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        backdrop-filter: blur(12px);
+      }
+      .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+      
+      /* Animation for list items */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .card { animation: fadeInUp 0.6s ease-out backwards; }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        color: #475569;
+        font-size: 14px;
+        padding-bottom: 40px;
+        font-weight: 500;
+      }
+      .heart { color: #ef4444; display: inline-block; animation: pulse 2s infinite; }
+      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      /* ── ICONS ────────────────────────────────────────────────────── */
+      const SearchIcon = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{position:'absolute', left:16, top:'50%', transform:'translateY(-50%)', color:'#64748b'}}>
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      );
+      const ShareIcon = () => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      );
+      const GithubIcon = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+      );
+      const LinkedinIcon = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      );
+      const ExternalLinkIcon = () => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      );
+
+      /* ── DATA ────────────────────────────────────────────────────── */
+      const MEMBERS = [
+          { name:"Amine Aanbary",             github:"https://github.com/amineaanbary",          linkedin:"https://www.linkedin.com/in/amine-aanbary-3a90602aa/" },
+          { name:"Hicham Boudouch",           github:"https://github.com/Hicham-in-tech",        linkedin:"https://www.linkedin.com/in/hicham-boudouch-76441832a/" },
+        { name:"Zebbara Zakaria",           github:"https://zakaria.github.io/Zakaria.Zebbara.github.io/", linkedin:"https://www.linkedin.com/in/zakaria-zebbara" },
+        { name:"Ait Addi Hamza",            github:"https://github.com/AitAddiHamza1",          linkedin:"https://www.linkedin.com/in/hamza-ait-addi" },
+        { name:"Mohamed En-Nasry",          github:"https://github.com/MohamedNasry",           linkedin:"https://www.linkedin.com/in/mohamed-en-nasry/" },
+        { name:"Oussama Elborji",           github:"https://github.com/oussaelber",             linkedin:null },
+        { name:"Hamid Assouab",             github:"https://github.com/Asso-uab",               linkedin:"https://www.linkedin.com/in/hamid05assouab/" },
+        { name:"Aymane Aghenda",            github:"https://github.com/Aghendaaymane-beep",     linkedin:null },
+        { name:"Ayman Ligassi",             github:"https://github.com/aymanlig",               linkedin:null },
+        { name:"Mohamed Amsount",           github:"https://github.com/mohamed1116",            linkedin:"https://www.linkedin.com/in/mohamed-amsount-290079348/" },
+        { name:"Ismail Yakini",             github:"https://github.com/ismail-yakini",          linkedin:"https://www.linkedin.com/in/ismail-yakini-p/" },
+        { name:"Hayat Koussa",              github:"https://github.com/HAYATkoussa",            linkedin:"https://www.linkedin.com/in/hayat-koussa-a00316343/" },
+        { name:"Intissar Ait Hssain",       github:"https://github.com/Intissar001",            linkedin:"https://www.linkedin.com/in/intissar-ait-hssain-2970052a4" },
+        { name:"Fatima Tamri",              github:"https://github.com/FATIMA01-F",             linkedin:"https://www.linkedin.com/in/fatima-tamri-030177388" },
+        { name:"Abdelaziz Boukdous",        github:"https://github.com/AbdelazizBoukdous",      linkedin:"https://www.linkedin.com/in/abdelaziz-boukdous-6b1a7336a" },
+        { name:"Ferdaous Chakir",           github:null,                                        linkedin:null },
+        { name:"Noura Er-Rachedy",          github:"https://github.com/NOURAERRACHEDY",         linkedin:"https://www.linkedin.com/in/noura-er-rachedy-1004aa3b1" },
+        { name:"Ikram Ayache",              github:"https://github.com/ikramayache",            linkedin:"https://www.linkedin.com/in/ikram-ayache-868bb73a9" },
+        { name:"Mohamed Ouchen",            github:"https://github.com/ouchen-med",             linkedin:"https://www.linkedin.com/in/mohamedouchen" },
+        { name:"Chaima Ait Addi Ouali",     github:"https://github.com/chaima665",              linkedin:"https://www.linkedin.com/in/chaima-ait-addi-5185503b1/" },
+        { name:"Mohamed Ouazzag",           github:"https://github.com/ouazzag-mohamed",        linkedin:"https://www.linkedin.com/in/mohamed-ouazzag-952b03286" },
+        { name:"Khadija Ait Bella",         github:"https://github.com/khadijaait85",           linkedin:"https://www.linkedin.com/in/khadija-ait-bella-9355523b1" },
+        { name:"Fatima-Ezzahra El Mouden",  github:"https://github.com/Fatimaezzahraelmouden",  linkedin:"https://www.linkedin.com/in/fatima-ezzahra-e-0515792a1" },
+        { name:"Kawtar Belkadi",            github:"https://github.com/kawtar-belk",            linkedin:null },
+        { name:"Hassan Es-Sebaiy",          github:"https://github.com/nassah73",               linkedin:null },
+        { name:"Ilham Ahchouch",            github:"https://github.com/ilham029",               linkedin:null },
+        { name:"Rayad Affaghrou",           github:"https://github.com/morerayadd",             linkedin:"https://www.linkedin.com/in/morerayad-add-just1110-shareid" },
+        { name:"Houcine Ait Ali",           github:"https://github.com/Houcineaitali",          linkedin:"https://www.linkedin.com/in/houcineaitali" },
+        { name:"Fatima-Ezzahrae Ech-Chaouy",github:"https://github.com/fatima-ezz6712",        linkedin:"https://www.linkedin.com/in/fatima-ezzahrae-ech-chaouy-89829b388/" },
+        { name:"Hassan Chouiter",           github:null,                                        linkedin:null },
+      ];
+
+      /* ── UTILS ───────────────────────────────────────────────────── */
+      const GRADIENTS = [
+        ["#6366f1","#8b5cf6"], ["#0ea5e9","#6366f1"], ["#10b981","#0ea5e9"],
+        ["#f59e0b","#ef4444"], ["#ec4899","#8b5cf6"], ["#14b8a6","#6366f1"],
+        ["#f97316","#ec4899"], ["#84cc16","#10b981"], ["#8b5cf6","#ec4899"]
+      ];
+      const getGradient = (i) => GRADIENTS[i % GRADIENTS.length];
+      const getInitials = (n) => n.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+      /* ── CARD COMPONENT ──────────────────────────────────────────── */
+      const Card = ({ member, idx, onMouseMove }) => {
+        const [g1, g2] = getGradient(idx);
+        
+        return (
+          <div className="card" onMouseMove={onMouseMove} style={{animationDelay: `${idx * 0.05}s`}}>
+            <div className="avatar" style={{ background: `linear-gradient(135deg, ${g1}, ${g2})` }}>
+              {getInitials(member.name)}
+            </div>
+            
+            <div className="card-content">
+              <div className="member-name">{member.name}</div>
+              <span className="member-role">Developer</span>
+              
+              <div className="social-links">
+                {member.github ? (
+                  <a href={member.github} target="_blank" rel="noopener" className="icon-btn btn-github" title="View GitHub">
+                    <GithubIcon />
+                  </a>
+                ) : <span className="icon-btn disabled"><GithubIcon /></span>}
+                
+                {member.linkedin ? (
+                  <a href={member.linkedin} target="_blank" rel="noopener" className="icon-btn btn-linkedin" title="View LinkedIn">
+                    <LinkedinIcon />
+                  </a>
+                ) : <span className="icon-btn disabled"><LinkedinIcon /></span>}
+
+                {/* Extra dynamic button if both exist */}
+                {member.github && member.linkedin && 
+                 <a href={member.github} target="_blank" rel="noopener" className="icon-btn" title="View Portfolio/Project">
+                   <ExternalLinkIcon />
+                 </a>
+                }
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      /* ── APP COMPONENT ───────────────────────────────────────────── */
+      const App = () => {
+        const [query, setQuery] = useState("");
+        const [toast, setToast] = useState({ msg: "", show: false });
+        
+        // Handle Mouse Move for Glow Effect
+        const handleMouseMove = (e) => {
+          const cards = document.getElementsByClassName("card");
+          for(const card of cards) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty("--mouse-x", `${x}px`);
+            card.style.setProperty("--mouse-y", `${y}px`);
+          }
+        };
+
+        const filtered = MEMBERS.filter(m => m.name.toLowerCase().includes(query.toLowerCase()));
+
+        const showToast = (msg) => {
+          setToast({ msg, show: true });
+          setTimeout(() => setToast({ msg: "", show: false }), 3000);
+        };
+
+        const handleShare = async () => {
+          if (navigator.share) {
+            try { await navigator.share({ title: "GI S6 Directory", url: window.location.href }); } catch {}
+          } else {
+            await navigator.clipboard.writeText(window.location.href);
+            showToast("Link copied to clipboard! 📋");
+          }
+        };
+
+        return (
+          <div onMouseMove={handleMouseMove}>
+            <header className="header">
+              <div className="header-badge">
+                <span style={{fontSize:16}}>⚡</span> GI Semester 6
+              </div>
+              <h1>Connect & Collaborate</h1>
+              <p>The ultimate directory for our class. Find teammates, explore projects, and grow your network.</p>
+
+              <div className="header-controls">
+                <div className="search-wrapper">
+                  <SearchIcon />
+                  <input 
+                    className="search-box"
+                    placeholder="Search by name..."
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                  />
+                </div>
+                <button className="share-btn" onClick={handleShare}>
+                  <ShareIcon /> Share
+                </button>
+              </div>
+            </header>
+
+            <div className="grid-container">
+              <div className="count-divider">
+                <span>{filtered.length} Classmates</span>
+              </div>
+              
+              <div className="grid">
+                {filtered.map((m, i) => (
+                  <Card key={i} member={m} idx={i} />
+                ))}
+              </div>
+
+              {filtered.length === 0 && (
+                <div style={{textAlign:'center', padding:'80px 0', color:'#64748b'}}>
+                  <h3>No classmates found</h3>
+                  <p>Try searching for a different name</p>
+                </div>
+              )}
+            </div>
+
+            <footer className="footer">
+              <p>GI S6 {new Date().getFullYear()} — Made with <span className="heart">♥</span> for the community</p>
+            </footer>
+
+            <div className={`toast ${toast.show ? "show" : ""}`}>
+              {toast.msg}
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
